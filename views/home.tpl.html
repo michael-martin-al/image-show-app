@@ -1,0 +1,48 @@
+<ion-view view-title="Home">
+	<ion-nav-buttons side="primary">
+		<button class="button button-clear ion-log-out" ng-if="isLoggedIn" ng-click="logout()"></button>
+	</ion-nav-buttons>
+	<ion-content class="padding">
+		<br>
+		<div class="list">
+			<a class="item item-avatar" href="#">
+				<img ng-src="{{profile.picture.data.url}}">
+				<h2>{{profile.name}}</h2>
+				<p>{{profile.email}}</p>
+			</a>
+		</div>					
+		<br>
+		<p>
+			Control mode allows you to setup devices, create slideshows and manage your account.
+		</p>
+		<p>
+			<button class="button button-block ion-ios-game-controller-b button-positive" ui-sref="control">
+				Control Mode
+			</button>
+		</p>
+		<br>
+		<hr>
+		<br>
+		<p>
+			View mode allows you to view slideshow you have created on your device.
+		</p>
+		<p>
+			<button class="button button-block ion-images button-positive" ui-sref="view">
+				View Mode
+			</button>
+		</p>		
+		<br>		
+		<hr>
+		<br>
+		<p ng-show="device">
+			Give this device a nickname so you can easily identify it for slideshow assignment.
+			<span ng-show="device.name">Currently, this device is named <b>{{device.name}}</b>.</span>
+			<span ng-hide="device.name">Currently, this device has no name</span>
+		</p>
+		<p>
+			<button class="button button-block ion-images button-positive" ui-sref="name">
+				Name this Device
+			</button>
+		</p>
+	</ion-content>
+</ion-view>

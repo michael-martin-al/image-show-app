@@ -1,0 +1,22 @@
+<ion-view view-title="Assign">
+	<ion-nav-buttons side="primary">
+		<button class="button button-clear" ui-sref="control">Cancel</button>	
+	</ion-nav-buttons>
+	<ion-content class="padding">		
+		<ul class="list" ng-hide="selectedDevice">
+			<li class="item" ng-click="selectDevice(device)" ng-repeat="device in devices">
+				<h2>{{device.name}}</h2> 
+				<p ng-show="device.$slideshow">assigned <b>{{device.$slideshow.name}}</b></p>
+			</li>
+		</ul>
+		<div ng-if="selectedDevice">
+			<h2>{{selectedDevice.name}}</h2>
+			<p>Choose a slideshow to assign...</p>
+			<ul class="list">
+				<li class="item" ng-click="assignSlideshowToDevice(show, selectedDevice)" ng-repeat="show in slideshows">
+					{{show.name}}
+				</li>
+			</ul>		
+		</div>
+	</ion-content>
+</ion-view>

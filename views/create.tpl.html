@@ -1,0 +1,31 @@
+<ion-view view-title="Create">
+	<ion-nav-buttons side="primary">
+		<button class="button button-clear" ui-sref="control">Cancel</button>
+	</ion-nav-buttons>
+	<ion-content class="padding">							
+		<br>
+		<h4>
+			<span ng-hide="selectedBoard">Choose a Pinterest Board</span>
+			<span ng-show="selectedBoard">Choose a Device</span>
+		</h4>
+		<ul class="list" ng-hide="selectedBoard">
+			<li class="item" ng-click="selectBoard(board)" ng-bind="board.name" ng-repeat="board in boards"></li>
+		</ul>
+
+		<div ng-show="selectedBoard">
+			<div class="list" ng-show="selectedBoard">
+				<label class="item item-input">
+					<input type="text" placeholder="Device Name" ng-model="slideShowName">
+				</label>
+			</div>
+			<div>
+				<br>
+				<h4>Image Previews from {{selectedBoard.name}}</h4>
+				<div>
+					<img ng-repeat="pin in pins" ng-src="{{pin.image.medium.url}}" width="{{pin.image.medium.width}}" height="{{pin.image.medium.height}}" >
+				</div>
+			</div>
+			<button class="button button-block button-positive" ng-click="createShow(slideShowName, selectedBoard)">Create Show</button>
+		</div>
+	</ion-content>
+</ion-view>

@@ -1,0 +1,5 @@
+<ion-view hide-nav-bar="true">
+	<div>
+		<img class="fullscreen-image ng-hide" ng-repeat="pin in pins" ng-src="{{pin.image.original.url}}" original-width="pin.image.original.width" original-height="pin.image.original.height" ng-show="activeIndex == $index">
+	</div>
+</ion-view>
