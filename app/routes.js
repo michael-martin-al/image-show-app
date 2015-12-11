@@ -7,7 +7,12 @@ angular.module('routes', [])
 		.state('home', {
 			url: '/',
 			templateUrl: 'home.tpl.html',
-			controller: 'HomeCtrl'
+			controller: 'HomeCtrl',
+			resolve: {
+				'CurrentAuth': ['Auth', function(Auth) {
+					return Auth.waitForReady();
+				}]
+			}
 		})
 
 		.state('login', {
@@ -48,3 +53,5 @@ angular.module('routes', [])
 
 	;
 })
+
+;

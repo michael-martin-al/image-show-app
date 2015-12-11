@@ -9,12 +9,13 @@ angular.module('create-view', [])
 	$scope.pinterestReady = Pinterest.ready();
 
 	$scope.authWithPinterest = function() {
+		$log.log("authWithPinterest", pinterestAppId, pinterestSecret);
 		MyOAuth.pinterest(pinterestAppId, pinterestSecret, ['read_public', 'read_private']).then(function(result) {
 			Auth.saveToken('pinterest', result.data.access_token);
 			$scope.pinterestReady = Pinterest.ready();	
 			$scope.fetchBoards();
 		}, function(error) {
-
+			$log.log("Error Auth with Pinterest", error);
 		});
 	};
 

@@ -5141,7 +5141,6 @@ angular.module('starter', [
 	'user', 
 	'device', 
 	'auth', 
-	'config', 
 	'routes', 
 	'view-templates',
 	'view-view',
@@ -5152,6 +5151,47 @@ angular.module('starter', [
 	'name-view',
 	'assign-view'
 ])
+
+.config(function($stateProvider, $provide) {
+	'use strict';
+
+	// $provide.decorator('$browser', ['$delegate', '$window', function($delegate, $window) {
+
+	// 	if (isIOS9UIWebView($window.navigator.userAgent)) {
+	// 		return applyIOS9Shim($delegate);
+	// 	}
+
+	// 	return $delegate;
+
+	// 	function isIOS9UIWebView(userAgent) {
+	// 		return /(iPhone|iPad|iPod).* OS 9_\d/.test(userAgent) && !/Version\/9\./.test(userAgent);
+	// 	}
+
+	// 	function applyIOS9Shim(browser) {
+	// 		var pendingLocationUrl = null;
+	// 		var originalUrlFn= browser.url;
+
+	// 		browser.url = function() {
+	// 			if (arguments.length) {
+	// 				pendingLocationUrl = arguments[0];
+	// 				return originalUrlFn.apply(browser, arguments);
+	// 			}
+
+	// 			return pendingLocationUrl || originalUrlFn.apply(browser, arguments);
+	// 		};
+
+	// 		window.addEventListener('popstate', clearPendingLocationUrl, false);
+	// 		window.addEventListener('hashchange', clearPendingLocationUrl, false);
+
+	// 		function clearPendingLocationUrl() {
+	// 			pendingLocationUrl = null;
+	// 		}
+
+	// 		return browser;
+	// 	}
+	// }]);	
+})
+
 
 .run(function($ionicPlatform, Auth, $rootScope, User, Device) {
 	$ionicPlatform.ready(function() {
@@ -5188,44 +5228,10 @@ angular.module('starter', [
 angular.module('config', [])
 
 .config(function($stateProvider, $provide) {
-	'use strict';
 
-	$provide.decorator('$browser', ['$delegate', '$window', function($delegate, $window) {
-
-		if (isIOS9UIWebView($window.navigator.userAgent)) {
-			return applyIOS9Shim($delegate);
-		}
-
-		return $delegate;
-
-		function isIOS9UIWebView(userAgent) {
-			return /(iPhone|iPad|iPod).* OS 9_\d/.test(userAgent) && !/Version\/9\./.test(userAgent);
-		}
-
-		function applyIOS9Shim(browser) {
-			var pendingLocationUrl = null;
-			var originalUrlFn= browser.url;
-
-			browser.url = function() {
-				if (arguments.length) {
-					pendingLocationUrl = arguments[0];
-					return originalUrlFn.apply(browser, arguments);
-				}
-
-				return pendingLocationUrl || originalUrlFn.apply(browser, arguments);
-			};
-
-			window.addEventListener('popstate', clearPendingLocationUrl, false);
-			window.addEventListener('hashchange', clearPendingLocationUrl, false);
-
-			function clearPendingLocationUrl() {
-				pendingLocationUrl = null;
-			}
-
-			return browser;
-		}
-	}]);
 })
+
+;
 angular.module('routes', [])
 
 .config(function($stateProvider, $provide) {
@@ -5235,7 +5241,12 @@ angular.module('routes', [])
 		.state('home', {
 			url: '/',
 			templateUrl: 'home.tpl.html',
-			controller: 'HomeCtrl'
+			controller: 'HomeCtrl',
+			resolve: {
+				'CurrentAuth': ['Auth', function(Auth) {
+					return Auth.waitForReady();
+				}]
+			}
 		})
 
 		.state('login', {
@@ -5276,6 +5287,8 @@ angular.module('routes', [])
 
 	;
 })
+
+;
 angular.module('assign-view', [])
 
 .controller('AssignCtrl', function(User, $state, $scope, $ionicPlatform) {
@@ -5329,12 +5342,13 @@ angular.module('create-view', [])
 	$scope.pinterestReady = Pinterest.ready();
 
 	$scope.authWithPinterest = function() {
+		$log.log("authWithPinterest", pinterestAppId, pinterestSecret);
 		MyOAuth.pinterest(pinterestAppId, pinterestSecret, ['read_public', 'read_private']).then(function(result) {
 			Auth.saveToken('pinterest', result.data.access_token);
 			$scope.pinterestReady = Pinterest.ready();	
 			$scope.fetchBoards();
 		}, function(error) {
-
+			$log.log("Error Auth with Pinterest", error);
 		});
 	};
 
@@ -5371,11 +5385,15 @@ angular.module('create-view', [])
 ;
 angular.module('home-view', [])
 
-.controller("HomeCtrl", function($scope, MyOAuth, Device, User, $ionicPlatform) {
+.controller("HomeCtrl", function($scope, MyOAuth, Device, User, $ionicPlatform, CurrentAuth) {
+	console.log(CurrentAuth);
+
 	$ionicPlatform.ready(function() {
 		screen.unlockOrientation();
 	});	
+
 	$scope.device = User.getDevice(Device.id());
+	
 })
 
 ;
@@ -5491,12 +5509,13 @@ angular.module('view-view', [])
 // ;
 angular.module('auth', [])
 
-.factory('Auth', function($rootScope, $firebaseAuth, $state, $q) {
+.factory('Auth', function($rootScope, $firebaseAuth, $state, $q, $log) {
 	var _key 		= "OAuthTokens";
 	var _tokens 	= JSON.parse(localStorage.getItem(_key)) || {};
 	var _isLoggedIn = false;
 	var _authData 	= {};
 	var _auth 		= $firebaseAuth(fb);
+	var _this;
 
 	function _saveTokens() {
 		localStorage.setItem(_key, JSON.stringify(_tokens));
@@ -5512,8 +5531,9 @@ angular.module('auth', [])
 		_saveTokens();			
 	}
 
-	return {
+	_this = {
 		getToken: function(provider) {
+			$log.log("Get token", provider, _tokens[provider], _tokens);
 			return _tokens[provider];
 		},
 		deleteToken: function(provider) {
@@ -5534,6 +5554,11 @@ angular.module('auth', [])
 					$state.go(homeState);
 				}
 			});					
+		},
+		waitForReady: function() {
+			return $q(function(resolve, reject) {
+				resolve(_auth.$getAuth());
+			});
 		},
 		isLoggedIn: function() {
 			return _isLoggedIn;
@@ -5560,6 +5585,8 @@ angular.module('auth', [])
 			}
 		}
 	};
+
+	return _this;
 })
 
 ;
@@ -5587,12 +5614,13 @@ angular.module('device', [])
 ;
 angular.module('myOAuth', [])
 
-.factory("MyOAuth", ["$q", '$http', "$cordovaOauthUtility", function($q, $http, $cordovaOauthUtility) {
+.factory("MyOAuth", ["$q", '$http', "$cordovaOauthUtility", "$log", function($q, $http, $cordovaOauthUtility, $log) {
 	return {
 		pinterest: function(clientId, clientSecret, appScope, options) {
 			return $q(function(resolve, reject) {
 				if(window.cordova) {
 					var cordovaMetadata = cordova.require("cordova/plugin_list").metadata;
+					$log.log('$cordovaMetadata', cordovaMetadata);
 					if($cordovaOauthUtility.isInAppBrowserInstalled(cordovaMetadata) === true) {
 						var redirect_uri = "https://localhost/callback";
 						if(options !== undefined) {
@@ -5636,7 +5664,7 @@ angular.module('myOAuth', [])
 ;
 angular.module('pinterest', [])
 
-.factory('Pinterest', function(Auth, $http) {
+.factory('Pinterest', function(Auth, $http, $log) {
 	var _rootUrl = "https://api.pinterest.com/v1";
 
 	function getUrl(path) {
@@ -5645,6 +5673,7 @@ angular.module('pinterest', [])
 
 	return {
 		ready: function() {
+			$log.log("Pinterest ready?");
 			return Auth.getToken('pinterest') != null;
 		},
 

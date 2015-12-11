@@ -1,11 +1,12 @@
 angular.module('auth', [])
 
-.factory('Auth', function($rootScope, $firebaseAuth, $state, $q) {
+.factory('Auth', function($rootScope, $firebaseAuth, $state, $q, $log) {
 	var _key 		= "OAuthTokens";
 	var _tokens 	= JSON.parse(localStorage.getItem(_key)) || {};
 	var _isLoggedIn = false;
 	var _authData 	= {};
 	var _auth 		= $firebaseAuth(fb);
+	var _this;
 
 	function _saveTokens() {
 		localStorage.setItem(_key, JSON.stringify(_tokens));
@@ -21,8 +22,9 @@ angular.module('auth', [])
 		_saveTokens();			
 	}
 
-	return {
+	_this = {
 		getToken: function(provider) {
+			$log.log("Get token", provider, _tokens[provider], _tokens);
 			return _tokens[provider];
 		},
 		deleteToken: function(provider) {
@@ -43,6 +45,11 @@ angular.module('auth', [])
 					$state.go(homeState);
 				}
 			});					
+		},
+		waitForReady: function() {
+			return $q(function(resolve, reject) {
+				resolve(_auth.$getAuth());
+			});
 		},
 		isLoggedIn: function() {
 			return _isLoggedIn;
@@ -69,6 +76,8 @@ angular.module('auth', [])
 			}
 		}
 	};
+
+	return _this;
 })
 
 ;

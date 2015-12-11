@@ -1,11 +1,12 @@
 angular.module('myOAuth', [])
 
-.factory("MyOAuth", ["$q", '$http', "$cordovaOauthUtility", function($q, $http, $cordovaOauthUtility) {
+.factory("MyOAuth", ["$q", '$http', "$cordovaOauthUtility", "$log", function($q, $http, $cordovaOauthUtility, $log) {
 	return {
 		pinterest: function(clientId, clientSecret, appScope, options) {
 			return $q(function(resolve, reject) {
 				if(window.cordova) {
 					var cordovaMetadata = cordova.require("cordova/plugin_list").metadata;
+					$log.log('$cordovaMetadata', cordovaMetadata);
 					if($cordovaOauthUtility.isInAppBrowserInstalled(cordovaMetadata) === true) {
 						var redirect_uri = "https://localhost/callback";
 						if(options !== undefined) {

@@ -1,6 +1,6 @@
 angular.module('pinterest', [])
 
-.factory('Pinterest', function(Auth, $http) {
+.factory('Pinterest', function(Auth, $http, $log) {
 	var _rootUrl = "https://api.pinterest.com/v1";
 
 	function getUrl(path) {
@@ -9,6 +9,7 @@ angular.module('pinterest', [])
 
 	return {
 		ready: function() {
+			$log.log("Pinterest ready?");
 			return Auth.getToken('pinterest') != null;
 		},
 
