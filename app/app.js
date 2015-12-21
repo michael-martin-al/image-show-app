@@ -27,7 +27,7 @@ angular.module('starter', [
 .config(function($stateProvider, $provide) {
 	'use strict';
 
-	// $provide.decorator('$browser', ['$delegate', '$window', function($delegate, $window) {
+	// $provide.decorator('$browser', ['$delegate', '$window', '$log', function($delegate, $window, $log) {
 
 	// 	if (isIOS9UIWebView($window.navigator.userAgent)) {
 	// 		return applyIOS9Shim($delegate);
@@ -36,10 +36,13 @@ angular.module('starter', [
 	// 	return $delegate;
 
 	// 	function isIOS9UIWebView(userAgent) {
+	// 		$log.log("isIOS9UIWebView", /(iPhone|iPad|iPod).* OS 9_\d/.test(userAgent) && !/Version\/9\./.test(userAgent));
 	// 		return /(iPhone|iPad|iPod).* OS 9_\d/.test(userAgent) && !/Version\/9\./.test(userAgent);
 	// 	}
 
 	// 	function applyIOS9Shim(browser) {
+	// 		$log.log("applyIOS9Shim");
+
 	// 		var pendingLocationUrl = null;
 	// 		var originalUrlFn= browser.url;
 
@@ -56,6 +59,7 @@ angular.module('starter', [
 	// 		window.addEventListener('hashchange', clearPendingLocationUrl, false);
 
 	// 		function clearPendingLocationUrl() {
+	// 			$log.log("clearPendingLocationUrl");
 	// 			pendingLocationUrl = null;
 	// 		}
 
